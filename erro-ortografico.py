@@ -48,16 +48,19 @@ if file is not None:
         if erros:
             for palavra in erros:
                 correcao = spell.correction(palavra)
-                st.markdown(f"- **Erro:** {palavra} ➜ **Sugestão:** **{correcao}**")
+                st.markdown(f"- **Erro:** {palavra} ➜ **Sugestão:** <span style='color: red; font-weight: bold;'>{correcao}</span>", unsafe_allow_html=True)
         else:
             st.success("Nenhum erro ortográfico encontrado!")
         
-        # Gera uma versão do texto com as correções destacadas em negrito
+        # Gera uma versão do texto com as correções destacadas em vermelho
         texto_corrigido = texto_extraido
         for erro in erros:
             correcao = spell.correction(erro)
-            # Substitui ocorrências exatas (ignora caixa alta/baixa)
-            texto_corrigido = re.sub(r'\b' + re.escape(erro) + r'\b', f'**{correcao}**', texto_corrigido, flags=re.IGNORECASE)
+            # Substitui ocorrências exatas ignorando caixa alta/baixa, inserindo a correção em vermelho
+            texto_corrigido = re.sub(r'\b' + re.escape(erro) + r'\b',
+                                      f"<span style='color: red; font-weight: bold;'>{correcao}</span>",
+                                      texto_corrigido,
+                                      flags=re.IGNORECASE)
         
         st.subheader("Texto Corrigido (Sugestão):")
-        st.markdown(texto_corrigido)
+        st.markdown(texto_corrigido, unsafe_allow_html=True)
