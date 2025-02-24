@@ -3,16 +3,17 @@ import pytesseract
 from PIL import Image
 from spellchecker import SpellChecker
 import PyPDF2
+import re
 
 st.title("Verificador de Ortografia em Arquivos")
 
-# Permite ao usuário enviar o arquivo
+# Upload do arquivo (PDF, PNG, JPEG)
 file = st.file_uploader("Selecione um arquivo (PDF, PNG ou JPEG)", type=["pdf", "png", "jpeg", "jpg"])
 
 if file is not None:
     texto_extraido = ""
     
-    # Processa arquivos PDF
+    # Processa o arquivo PDF
     if file.type == "application/pdf":
         try:
             pdf_reader = PyPDF2.PdfReader(file)
@@ -21,11 +22,10 @@ if file is not None:
         except Exception as e:
             st.error(f"Erro ao processar PDF: {e}")
     
-    # Processa arquivos de imagem
+    # Processa arquivos de imagem (PNG, JPEG)
     elif file.type in ["image/png", "image/jpeg"]:
         try:
             imagem = Image.open(file)
-            # Certifique-se de que o Tesseract esteja instalado e configurado corretamente
             texto_extraido = pytesseract.image_to_string(imagem, lang='por')
         except Exception as e:
             st.error(f"Erro ao processar a imagem: {e}")
@@ -37,15 +37,27 @@ if file is not None:
         st.subheader("Texto Extraído:")
         st.text_area("", texto_extraido, height=200)
         
-        # Verificação ortográfica
+        # Inicializa o verificador ortográfico para português
         spell = SpellChecker(language='pt')
-        palavras = texto_extraido.split()
+        
+        # Extrai as palavras preservando apenas os caracteres alfanuméricos
+        palavras = re.findall(r'\w+', texto_extraido)
         erros = spell.unknown(palavras)
         
-        st.subheader("Resultado da Verificação Ortográfica:")
+        st.subheader("Erros e Sugestões:")
         if erros:
-            st.error("Foram encontrados erros ortográficos:")
             for palavra in erros:
-                st.write(f"- {palavra}")
+                correcao = spell.correction(palavra)
+                st.markdown(f"- **Erro:** {palavra} ➜ **Sugestão:** **{correcao}**")
         else:
             st.success("Nenhum erro ortográfico encontrado!")
+        
+        # Gera uma versão do texto com as correções destacadas em negrito
+        texto_corrigido = texto_extraido
+        for erro in erros:
+            correcao = spell.correction(erro)
+            # Substitui ocorrências exatas (ignora caixa alta/baixa)
+            texto_corrigido = re.sub(r'\b' + re.escape(erro) + r'\b', f'**{correcao}**', texto_corrigido, flags=re.IGNORECASE)
+        
+        st.subheader("Texto Corrigido (Sugestão):")
+        st.markdown(texto_corrigido)
