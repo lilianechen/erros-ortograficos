@@ -1,5 +1,6 @@
 streamlit
 pytesseract
-Pillow
+pillow
 pyspellchecker
 PyPDF2
+deepmultilingualpunctuation
