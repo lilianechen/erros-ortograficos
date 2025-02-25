@@ -7,6 +7,8 @@ import re
 import difflib
 import string
 from deepmultilingualpunctuation import PunctuationModel
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+
 
 st.title("Verificador Ortográfico e de Pontuação")
 
