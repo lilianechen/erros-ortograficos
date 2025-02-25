@@ -1,5 +1,6 @@
 import streamlit as st
 import pytesseract
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
 from PIL import Image
 from spellchecker import SpellChecker
 import PyPDF2
@@ -7,7 +8,7 @@ import re
 import difflib
 import string
 from deepmultilingualpunctuation import PunctuationModel
-pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+
 
 
 st.title("Verificador Ortográfico e de Pontuação")
